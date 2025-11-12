@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatGPT Clone (Gemini)</title>
+  <link rel="stylesheet" href="/theme.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__top">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">🤖</div>
+          <span class="sidebar__title">CodeGPT</span>
+        </div>
+      </div>
+      
+      <div class="sidebar__prompts">
+        <div class="sidebar__heading">
+          <span>Recent Prompts</span>
+          <button class="clear-prompts" id="clear-prompts" title="Clear all prompts">🗑️</button>
+        </div>
+        <div class="prompt-list-container">
+          <ul id="prompt-list"></ul>
+        </div>
+      </div>
+    </aside>
+
+    <div class="content">
+      <header class="app__header">
+        <div class="brand">
+          <button class="menu" id="menu">☰</button>
+          <div class="logo">🤖</div>
+          <div class="title">CodeGPT</div>
+        </div>
+        <div class="header-actions">
+          <button class="tools-toggle-btn" id="tools-toggle-btn" title="Tools & Assistants">
+            <span>🛠️</span>
+          </button>
+          <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle theme">
+            <span class="theme-icon">🌙</span>
+          </button>
+          <button class="user-menu-btn" id="user-menu-btn" title="Account">
+            <span>👤</span>
+          </button>
+        </div>
+      </header>
+      
+      <!-- User Menu Dropdown -->
+      <div class="user-menu" id="user-menu" style="display: none;">
+        <div class="user-menu-item" id="settings-btn">
+          <span>⚙️</span>
+          <span>Settings</span>
+        </div>
+        <div class="user-menu-divider"></div>
+        <div class="user-menu-item" id="logout-menu-btn">
+          <span>🚪</span>
+          <span>Logout</span>
+        </div>
+      </div>
+
+      <main class="chat" id="chat">
+        <!-- Tools & Assistants Panel -->
+        <div class="tools-panel" id="tools-panel">
+          <div class="tools-header">
+            <h3>🛠️ Tools & Assistants</h3>
+            <button class="close-tools" id="close-tools">×</button>
+          </div>
+          
+          <!-- Tool Integration -->
+          <div class="tool-section">
+            <h4>🔧 Live Tools</h4>
+            <div class="tool-grid">
+              <button class="tool-btn" data-tool="web-search">
+                <span class="tool-icon">🔍</span>
+                <span class="tool-name">Web Search</span>
+              </button>
+              <button class="tool-btn" data-tool="weather">
+                <span class="tool-icon">🌤️</span>
+                <span class="tool-name">Weather</span>
+              </button>
+              <button class="tool-btn" data-tool="news">
+                <span class="tool-icon">📰</span>
+                <span class="tool-name">News</span>
+              </button>
+              <button class="tool-btn" data-tool="stocks">
+                <span class="tool-icon">📈</span>
+                <span class="tool-name">Stocks</span>
+              </button>
+              <button class="tool-btn" data-tool="calculator">
+                <span class="tool-icon">🧮</span>
+                <span class="tool-name">Calculator</span>
+              </button>
+              <button class="tool-btn" data-tool="code-exec">
+                <span class="tool-icon">⚡</span>
+                <span class="tool-name">Run Code</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Workflow Assistants -->
+          <div class="tool-section">
+            <h4>🤖 AI Assistants</h4>
+            <div class="assistant-list">
+              <button class="assistant-btn" data-assistant="resume">
+                <span class="assistant-icon">📄</span>
+                <div class="assistant-info">
+                  <span class="assistant-name">Resume Builder</span>
+                  <span class="assistant-desc">Create professional resumes</span>
+                </div>
+              </button>
+              <button class="assistant-btn" data-assistant="image-to-pdf">
+                <span class="assistant-icon">🖼️</span>
+                <div class="assistant-info">
+                  <span class="assistant-name">Image to PDF</span>
+                  <span class="assistant-desc">Convert images to PDF</span>
+                </div>
+              </button>
+              <button class="assistant-btn" data-assistant="word-to-pdf">
+                <span class="assistant-icon">📝</span>
+                <div class="assistant-info">
+                  <span class="assistant-name">Word to PDF</span>
+                  <span class="assistant-desc">Convert Word files to PDF</span>
+                </div>
+              </button>
+              <button class="assistant-btn" data-assistant="doc-compressor">
+                <span class="assistant-icon">🗜️</span>
+                <div class="assistant-info">
+                  <span class="assistant-name">Document Compressor</span>
+                  <span class="assistant-desc">Compress document size</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div class="tool-section">
+            <h4>📁 My Projects</h4>
+            <div class="projects-list" id="projects-list">
+              <button class="create-project-btn" id="create-project-btn">
+                <span>+</span>
+                <span>New Project</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages" id="chat-messages"></div>
+      </main>
+
+      <form class="composer" id="composer">
+        <div class="attachment-preview" id="attachment-preview"></div>
+        <div class="composer__wrapper">
+          <div class="composer__inner">
+            <div class="composer__attachments">
+              <button type="button" class="attachment-btn" id="file-btn" title="Attach file">
+                <span>📎</span>
+              </button>
+              <button type="button" class="attachment-btn" id="image-btn" title="Attach image">
+                <span>🖼️</span>
+              </button>
+              <button type="button" class="attachment-btn" id="voice-btn" title="Voice input">
+                <span>🎤</span>
+              </button>
+              <input type="file" id="file-input" class="file-input" multiple accept="*/*">
+              <input type="file" id="image-input" class="file-input" multiple accept="image/*">
+            </div>
+            <div class="composer__input-wrapper">
+              <textarea id="input" rows="1" placeholder="Message CodeGPT..." autocomplete="off"></textarea>
+              <div class="composer__actions">
+                <button type="button" id="stop" class="action-btn" title="Stop generating">
+                  <span>⏹</span>
+                </button>
+                <button type="button" id="regenerate" class="action-btn" title="Regenerate">
+                  <span>🔄</span>
+                </button>
+                <button type="submit" class="send" aria-label="Send">
+                  <span>➤</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="hint">
+            <span>Press <kbd>Enter</kbd> to send</span>
+            <span>·</span>
+            <span><kbd>Shift + Enter</kbd> for newline</span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
+
+

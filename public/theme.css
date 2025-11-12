@@ -1,0 +1,284 @@
+/* Theme System - Light and Dark Mode */
+
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"] {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #13131a;
+  --bg-tertiary: #1a1a24;
+  --bg-card: #1a1a24;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0b8;
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --border: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --sidebar-bg: #0d0d0d;
+  
+  /* Orb colors for dark theme */
+  --orb-opacity: 0.15;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f1f3f5;
+  --bg-card: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --border: rgba(0, 0, 0, 0.12);
+  --input-bg: #ffffff;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  --sidebar-bg: #f8f9fa;
+  
+  /* Orb colors for light theme */
+  --orb-opacity: 0.05;
+}
+
+/* Auto theme - follows system preference */
+@media (prefers-color-scheme: light) {
+  [data-theme="auto"] {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f3f5;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --border: rgba(0, 0, 0, 0.1);
+    --input-bg: rgba(0, 0, 0, 0.03);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    --sidebar-bg: #ffffff;
+    --orb-opacity: 0.08;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #13131a;
+    --bg-tertiary: #1a1a24;
+    --bg-card: #1a1a24;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b8;
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --border: rgba(255, 255, 255, 0.1);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    --sidebar-bg: #0d0d0d;
+    --orb-opacity: 0.15;
+  }
+}
+
+/* Smooth theme transition */
+body,
+.sidebar,
+.app__header,
+.message__bubble,
+.composer,
+.settings-card,
+.auth__card,
+.navbar {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Light theme specific adjustments */
+[data-theme="light"] .gradient-orb {
+  opacity: var(--orb-opacity);
+}
+
+[data-theme="light"] .sidebar {
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid var(--border);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .message--assistant .message__bubble {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="light"] .composer::before {
+  background: linear-gradient(to top, rgba(248, 249, 250, 0.98), rgba(248, 249, 250, 0.95));
+}
+
+[data-theme="light"] .app__header {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .settings-card,
+[data-theme="light"] .auth__card {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .navbar {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .welcome-screen {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] code {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] pre {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
+}
+
+/* Light mode input and composer styling */
+[data-theme="light"] .composer {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid var(--border);
+}
+
+[data-theme="light"] .composer__inner {
+  background: #ffffff;
+  border: 1px solid var(--border);
+}
+
+[data-theme="light"] .composer__inner:focus-within {
+  border-color: var(--accent-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="light"] #input {
+  background: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+[data-theme="light"] #input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="light"] #input::placeholder {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .message--user .message__bubble {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .message__content {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .chat-messages {
+  background: var(--bg-primary);
+}
+
+[data-theme="light"] .prompt-item {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .prompt-item:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+[data-theme="light"] .sidebar__prompts {
+  background: transparent;
+}
+
+[data-theme="light"] .sidebar__heading {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .btn-submit,
+[data-theme="light"] .send {
+  background: var(--accent-gradient);
+  color: #ffffff;
+}
+
+[data-theme="light"] .action-btn {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .action-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .attachment-btn {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .attachment-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .tools-panel {
+  background: rgba(255, 255, 255, 0.95);
+  border-left: 1px solid var(--border);
+}
+
+[data-theme="light"] .tool-btn,
+[data-theme="light"] .assistant-btn {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .tool-btn:hover,
+[data-theme="light"] .assistant-btn:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+[data-theme="light"] .user-menu {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .user-menu-item {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .user-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Override any browser default focus colors in light mode */
+[data-theme="light"] input:focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] textarea:focus {
+  border-color: var(--accent-primary) !important;
+}

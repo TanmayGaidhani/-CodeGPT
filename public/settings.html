@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Settings - CodeGPT</title>
+  <link rel="stylesheet" href="/theme.css" />
+  <link rel="stylesheet" href="/settings.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="settings-container">
+    <!-- Background Effects -->
+    <div class="settings-bg">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="settings-header">
+      <a href="/chat" class="back-btn">
+        <span>←</span>
+        <span>Back to Chat</span>
+      </a>
+      <h1>Settings</h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="settings-content">
+      <!-- Profile Section -->
+      <div class="settings-card">
+        <div class="card-header">
+          <div class="card-icon">👤</div>
+          <h2>Profile</h2>
+        </div>
+        
+        <div class="profile-section">
+          <!-- Profile Image -->
+          <div class="profile-image-section">
+            <div class="profile-image-wrapper">
+              <div class="profile-image" id="profile-image">
+                <span class="profile-initial" id="profile-initial">U</span>
+                <img id="profile-img" style="display: none;" />
+              </div>
+              <button class="change-photo-btn" id="change-photo-btn">
+                <span>📷</span>
+              </button>
+              <input type="file" id="photo-input" accept="image/*" style="display: none;" />
+            </div>
+            <div class="profile-image-info">
+              <h3 id="user-name-display">Loading...</h3>
+              <p id="user-email-display">Loading...</p>
+            </div>
+          </div>
+
+          <!-- Profile Form -->
+          <div class="profile-form">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="s-name" placeholder="Your name" />
+            </div>
+            
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="s-email" readonly disabled />
+              <span class="field-hint">Email cannot be changed</span>
+            </div>
+            
+            <div class="form-group">
+              <label>Member Since</label>
+              <input type="text" id="s-joined" readonly disabled />
+            </div>
+
+            <div class="form-actions">
+              <button class="btn-save" id="save-profile">
+                <span>💾</span>
+                <span>Save Changes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Section -->
+      <div class="settings-card">
+        <div class="card-header">
+          <div class="card-icon">🔒</div>
+          <h2>Account & Security</h2>
+        </div>
+        
+        <div class="account-section">
+          <div class="account-item">
+            <div class="account-item-info">
+              <h3>Change Password</h3>
+              <p>Update your password to keep your account secure</p>
+            </div>
+            <button class="btn-secondary" id="change-password-btn">
+              <span>Change</span>
+            </button>
+          </div>
+
+          <div class="account-item">
+            <div class="account-item-info">
+              <h3>Two-Factor Authentication</h3>
+              <p>Add an extra layer of security to your account</p>
+            </div>
+            <button class="btn-secondary" disabled>
+              <span>Coming Soon</span>
+            </button>
+          </div>
+
+          <div class="account-item danger">
+            <div class="account-item-info">
+              <h3>Delete Account</h3>
+              <p>Permanently delete your account and all data</p>
+            </div>
+            <button class="btn-danger" id="delete-account-btn">
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferences Section -->
+      <div class="settings-card">
+        <div class="card-header">
+          <div class="card-icon">⚙️</div>
+          <h2>Preferences</h2>
+        </div>
+        
+        <div class="preferences-section">
+          <div class="preference-item">
+            <div class="preference-info">
+              <h3>Theme</h3>
+              <p>Choose your preferred theme</p>
+            </div>
+            <select class="preference-select" id="theme-select">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="auto">Auto (System)</option>
+            </select>
+          </div>
+
+          <div class="preference-item">
+            <div class="preference-info">
+              <h3>Language</h3>
+              <p>Select your preferred language</p>
+            </div>
+            <select class="preference-select" id="language-select">
+              <option value="en">English</option>
+              <option value="es" disabled>Spanish (Coming Soon)</option>
+              <option value="fr" disabled>French (Coming Soon)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout Section -->
+      <div class="settings-card logout-card">
+        <button class="btn-logout" id="logout-btn">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/theme.js"></script>
+  <script src="/settings.js"></script>
+</body>
+</html>
+
+

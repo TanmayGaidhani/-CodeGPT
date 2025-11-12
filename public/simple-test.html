@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Chat Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    #messages {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      min-height: 400px;
+      margin-bottom: 20px;
+      overflow-y: auto;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .user {
+      background: #007bff;
+      color: white;
+      text-align: right;
+    }
+    .assistant {
+      background: #e9ecef;
+    }
+    #inputArea {
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+    }
+    #status {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background: #d4edda;
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Simple Chat Test</h1>
+  <div id="status">Ready! Type a message and press Send.</div>
+  <div id="messages"></div>
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Type your message here..." />
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const messagesDiv = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusDiv = document.getElementById('status');
+
+    let conversationHistory = [];
+
+    function addMessageToUI(role, text) {
+      const div = document.createElement('div');
+      div.className = 'message ' + role;
+      div.textContent = text;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function setStatus(text, isError = false) {
+      statusDiv.textContent = text;
+      statusDiv.style.background = isError ? '#f8d7da' : '#d4edda';
+      statusDiv.style.color = isError ? '#721c24' : '#155724';
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      // Disable input
+      userInput.value = '';
+      sendBtn.disabled = true;
+      userInput.disabled = true;
+
+      // Add user message to UI
+      addMessageToUI('user', message);
+      conversationHistory.push({ role: 'user', content: message });
+
+      setStatus('🤔 Thinking...');
+
+      try {
+        console.log('Sending request to /api/chat/stream');
+        
+        const response = await fetch('/api/chat/stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messages: conversationHistory
+          })
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status);
+        }
+
+        // Create assistant message div
+        const assistantDiv = document.createElement('div');
+        assistantDiv.className = 'message assistant';
+        assistantDiv.textContent = '';
+        messagesDiv.appendChild(assistantDiv);
+
+        // Read the stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            console.log('Stream complete');
+            break;
+          }
+
+          const chunk = decoder.decode(value, { stream: true });
+          fullResponse += chunk;
+          assistantDiv.textContent = fullResponse;
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        conversationHistory.push({ role: 'assistant', content: fullResponse });
+        setStatus('✅ Ready! Type another message.');
+
+      } catch (error) {
+        console.error('Error:', error);
+        addMessageToUI('assistant', '❌ Error: ' + error.message);
+        setStatus('❌ Error occurred: ' + error.message, true);
+      } finally {
+        sendBtn.disabled = false;
+        userInput.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    // Send on Enter key
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Add welcome message
+    addMessageToUI('assistant', 'Hello! I am your AI assistant. Ask me anything!');
+  </script>
+</body>
+</html>
