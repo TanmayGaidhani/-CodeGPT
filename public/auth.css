@@ -1,16 +1,4 @@
-:root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #13131a;
-  --bg-card: #1a1a24;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0b8;
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --border: rgba(255, 255, 255, 0.1);
-  --input-bg: rgba(255, 255, 255, 0.05);
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
+/* Theme variables are defined in theme.css - don't duplicate here */
 
 * {
   margin: 0;
@@ -150,12 +138,19 @@ body {
   width: 64px;
   height: 64px;
   margin: 0 auto 1.5rem;
-  background: var(--accent-gradient);
   border-radius: 16px;
   display: grid;
   place-items: center;
   font-size: 2rem;
   box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+  overflow: hidden;
+}
+
+.auth-logo .logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
 }
 
 .auth-header h1 {

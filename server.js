@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { google } = require('googleapis');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,7 +34,7 @@ app.get('/chat', (req, res) => {
 app.use(express.static('public'));
 
 // ===== MONGODB CONNECTION =====
-const MONGO_URL = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/Chatgptclone";
+const MONGO_URL = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/CodeGPT";
 
 const userSchema = new mongoose.Schema({
   id: String,
@@ -456,6 +457,98 @@ app.delete('/api/chat/history/:chatId', async (req, res) => {
   } catch (error) {
     console.error('Delete chat error:', error);
     res.status(500).json({ error: 'Failed to delete chat' });
+  }
+});
+
+// ===== GOOGLE CALENDAR API =====
+
+// Parse date/time from natural language using Gemini
+app.post('/api/calendar/parse-event', async (req, res) => {
+  try {
+    const { query } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'Query required' });
+    }
+
+    const geminiKey = process.env.GOOGLE_GEMINI_API_KEY;
+    if (!geminiKey || !GoogleGenerativeAI) {
+      return res.status(500).json({ error: 'AI service not available' });
+    }
+
+    // Use Gemini to parse the natural language query
+    const genAI = new GoogleGenerativeAI(geminiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    const prompt = `Extract calendar event details from this query: "${query}"
+
+Return ONLY a JSON object with this exact format (no markdown, no explanation):
+{
+  "title": "event title",
+  "date": "YYYY-MM-DD",
+  "time": "HH:MM",
+  "duration": 60,
+  "description": "event description"
+}
+
+Current date: ${new Date().toISOString().split('T')[0]}
+Current time: ${new Date().toTimeString().split(' ')[0].substring(0, 5)}
+
+If the query doesn't contain a calendar event, return: {"error": "Not a calendar event"}`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
+    
+    // Parse JSON from response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return res.json({ error: 'Could not parse event details' });
+    }
+    
+    const eventData = JSON.parse(jsonMatch[0]);
+    
+    if (eventData.error) {
+      return res.json({ error: eventData.error });
+    }
+    
+    res.json({ success: true, event: eventData });
+    
+  } catch (error) {
+    console.error('Parse event error:', error);
+    res.status(500).json({ error: 'Failed to parse event' });
+  }
+});
+
+// Create calendar event (simplified - returns iCal format)
+app.post('/api/calendar/create-event', async (req, res) => {
+  try {
+    const { title, date, time, duration, description } = req.body;
+    
+    if (!title || !date || !time) {
+      return res.status(400).json({ error: 'Title, date, and time required' });
+    }
+
+    // Create datetime strings
+    const startDateTime = new Date(`${date}T${time}:00`);
+    const endDateTime = new Date(startDateTime.getTime() + (duration || 60) * 60000);
+    
+    // Generate Google Calendar URL
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDateTime.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${endDateTime.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(description || '')}`;
+    
+    res.json({ 
+      success: true, 
+      calendarUrl,
+      event: {
+        title,
+        start: startDateTime.toISOString(),
+        end: endDateTime.toISOString(),
+        description
+      }
+    });
+    
+  } catch (error) {
+    console.error('Create event error:', error);
+    res.status(500).json({ error: 'Failed to create event' });
   }
 });
 

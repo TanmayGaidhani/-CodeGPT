@@ -21,8 +21,8 @@ let attachments = [];
 let isRecording = false;
 let mediaRecorder = null;
 let audioChunks = [];
-let pastPrompts = loadPrompts();
-renderPrompts();
+let currentChatId = null;
+let chatHistories = [];
 
 function appendMessage(role, content, attachmentsToShow = []){
   // Hide welcome screen on first message
@@ -36,7 +36,7 @@ function appendMessage(role, content, attachmentsToShow = []){
 
   const avatar = document.createElement('div');
   avatar.className = 'message__avatar';
-  avatar.textContent = role === 'user' ? '🧑' : '🤖';
+  avatar.textContent = role === 'user' ? '👤' : '✨';
 
   const bubble = document.createElement('div');
   bubble.className = 'message__bubble';
@@ -121,7 +121,6 @@ composer.addEventListener('submit', async (e)=>{
   attachments = [];
   renderAttachments();
   
-  addPrompt(text); // Save only the text prompt, not attachments
   setBusy(true);
 
   try{
@@ -170,6 +169,15 @@ composer.addEventListener('submit', async (e)=>{
     }
     console.log('✅ Response complete:', assistantText.substring(0, 50) + '...');
     messages.push({ role: 'assistant', content: assistantText });
+    
+    // Auto-save chat to history
+    try {
+      if (typeof saveCurrentChat === 'function') {
+        saveCurrentChat();
+      }
+    } catch (saveErr) {
+      console.error('Failed to save chat:', saveErr);
+    }
   }catch(err){
     console.error(err);
     appendMessage('assistant', 'Sorry, something went wrong. ' + (err.message || ''));
@@ -322,76 +330,205 @@ if(settingsBtn){
   });
 }
 
-// Clear prompts functionality
-const clearPromptsBtn = document.getElementById('clear-prompts');
-if(clearPromptsBtn){
-  clearPromptsBtn.addEventListener('click', ()=>{
-    if(confirm('Clear all recent prompts?')){
-      pastPrompts = [];
-      savePrompts();
-      renderPrompts();
-    }
-  });
-}
+// ===== CHAT HISTORY SYSTEM =====
 
-// Past prompts persistence and UI (User-specific)
+// User-specific storage helper
 function getUserStorageKey(key){
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   return user.id ? `${key}_${user.id}` : key;
 }
 
-function loadPrompts(){
-  try{ 
-    const storageKey = getUserStorageKey('prompts');
-    return JSON.parse(localStorage.getItem(storageKey)||'[]'); 
-  }catch{ return []; }
+const chatHistoryList = document.getElementById('chat-history-list');
+const newChatBtn = document.getElementById('new-chat-btn');
+
+// Load chat histories from localStorage
+function loadChatHistories() {
+  try {
+    const storageKey = getUserStorageKey('chatHistories');
+    return JSON.parse(localStorage.getItem(storageKey) || '[]');
+  } catch {
+    return [];
+  }
 }
 
-function savePrompts(){
-  const storageKey = getUserStorageKey('prompts');
-  localStorage.setItem(storageKey, JSON.stringify(pastPrompts.slice(0,50)));
+// Save chat histories to localStorage
+function saveChatHistories() {
+  try {
+    const storageKey = getUserStorageKey('chatHistories');
+    localStorage.setItem(storageKey, JSON.stringify(chatHistories));
+  } catch (err) {
+    console.error('Failed to save chat histories:', err);
+  }
 }
-function addPrompt(text){
-  if(!text) return;
-  pastPrompts.unshift({ id: crypto.randomUUID?.() || String(Date.now()), text, ts: Date.now() });
-  // Deduplicate identical adjacent prompts
-  pastPrompts = pastPrompts.filter((p,i,arr)=> i===0 || p.text !== arr[i-1].text);
-  pastPrompts = pastPrompts.slice(0,50);
-  savePrompts();
-  renderPrompts();
+
+// Generate chat title from first message
+function generateChatTitle(messages) {
+  if (messages.length === 0) return 'New Chat';
+  const firstUserMsg = messages.find(m => m.role === 'user');
+  if (!firstUserMsg) return 'New Chat';
+  const title = firstUserMsg.content.substring(0, 50);
+  return title.length < firstUserMsg.content.length ? title + '...' : title;
 }
-function renderPrompts(){
-  if(!promptListEl) return;
-  promptListEl.innerHTML='';
+
+// Save current chat to history
+function saveCurrentChat() {
+  if (messages.length === 0) return;
   
-  if(pastPrompts.length === 0){
+  const title = generateChatTitle(messages);
+  const timestamp = new Date().toISOString();
+  
+  if (currentChatId) {
+    // Update existing chat
+    const chatIndex = chatHistories.findIndex(c => c.id === currentChatId);
+    if (chatIndex !== -1) {
+      chatHistories[chatIndex] = {
+        id: currentChatId,
+        title,
+        messages: [...messages],
+        timestamp,
+        updatedAt: timestamp
+      };
+    }
+  } else {
+    // Create new chat
+    currentChatId = 'chat_' + Date.now();
+    chatHistories.unshift({
+      id: currentChatId,
+      title,
+      messages: [...messages],
+      timestamp,
+      updatedAt: timestamp
+    });
+  }
+  
+  // Keep only last 50 chats
+  chatHistories = chatHistories.slice(0, 50);
+  saveChatHistories();
+  renderChatHistories();
+}
+
+// Load a chat from history
+function loadChat(chatId) {
+  const chat = chatHistories.find(c => c.id === chatId);
+  if (!chat) return;
+  
+  // Clear current chat
+  chatContainer.innerHTML = '';
+  messages = [];
+  currentChatId = chatId;
+  
+  // Load messages
+  chat.messages.forEach(msg => {
+    appendMessage(msg.role, msg.content);
+    messages.push(msg);
+  });
+  
+  // Scroll to bottom
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+// Delete a chat from history
+function deleteChat(chatId) {
+  if (!confirm('Delete this chat?')) return;
+  
+  chatHistories = chatHistories.filter(c => c.id !== chatId);
+  saveChatHistories();
+  renderChatHistories();
+  
+  // If deleted chat was current, start new chat
+  if (currentChatId === chatId) {
+    startNewChat();
+  }
+}
+
+// Start a new chat
+function startNewChat() {
+  chatContainer.innerHTML = '';
+  messages = [];
+  currentChatId = null;
+  input.value = '';
+  input.focus();
+}
+
+// Render chat histories in sidebar
+function renderChatHistories() {
+  if (!chatHistoryList) return;
+  
+  chatHistoryList.innerHTML = '';
+  
+  if (chatHistories.length === 0) {
     const emptyState = document.createElement('div');
     emptyState.className = 'empty-state';
     emptyState.innerHTML = `
       <div class="empty-icon">💬</div>
-      <div class="empty-text">No recent prompts</div>
-      <div class="empty-subtext">Your prompts will appear here</div>
+      <div class="empty-text">No chat history</div>
+      <div class="empty-subtext">Start a conversation!</div>
     `;
-    promptListEl.appendChild(emptyState);
+    chatHistoryList.appendChild(emptyState);
     return;
   }
   
-  pastPrompts.forEach(p=>{
+  chatHistories.forEach(chat => {
     const li = document.createElement('li');
-    const btn = document.createElement('button');
-    btn.className='prompt-item';
-    btn.innerHTML = `<span class="text" title="${p.text}">${p.text}</span>`;
-    btn.addEventListener('click', ()=>{
-      input.value = p.text;
-      input.focus();
-      // Auto-resize textarea
-      input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, window.innerHeight * 0.4) + 'px';
+    li.className = 'chat-history-item';
+    if (chat.id === currentChatId) {
+      li.classList.add('active');
+    }
+    
+    const date = new Date(chat.timestamp);
+    const timeAgo = getTimeAgo(date);
+    
+    li.innerHTML = `
+      <button class="chat-history-btn" data-chat-id="${chat.id}">
+        <div class="chat-history-icon">💬</div>
+        <div class="chat-history-info">
+          <div class="chat-history-title">${chat.title}</div>
+          <div class="chat-history-time">${timeAgo}</div>
+        </div>
+      </button>
+      <button class="chat-history-delete" data-chat-id="${chat.id}" title="Delete">🗑️</button>
+    `;
+    
+    // Load chat on click
+    li.querySelector('.chat-history-btn').addEventListener('click', () => {
+      loadChat(chat.id);
+      // Update active state
+      document.querySelectorAll('.chat-history-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      li.classList.add('active');
     });
-    li.appendChild(btn);
-    promptListEl.appendChild(li);
+    
+    // Delete chat on delete button click
+    li.querySelector('.chat-history-delete').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteChat(chat.id);
+    });
+    
+    chatHistoryList.appendChild(li);
   });
 }
+
+// Get time ago string
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+  if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+  
+  return date.toLocaleDateString();
+}
+
+// New chat button
+if (newChatBtn) {
+  newChatBtn.addEventListener('click', startNewChat);
+}
+
+// Initialize chat histories after functions are defined
+chatHistories = loadChatHistories();
+renderChatHistories();
 
 // Attachment handling
 function renderAttachments(){
@@ -875,3 +1012,4 @@ function saveToProject(){
 
 // Add save to project button (optional)
 window.saveToProject = saveToProject;
+

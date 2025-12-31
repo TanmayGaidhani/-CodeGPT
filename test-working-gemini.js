@@ -11,7 +11,7 @@ async function testWorkingGemini() {
   
   const body = {
     contents: [{
-      parts: [{ text: "Hello! Please respond with 'Your ChatGPT clone with Gemini is working perfectly!' if you can read this." }]
+      parts: [{ text: "Hello! Please respond with 'Your CodeGPT with Gemini is working perfectly!' if you can read this." }]
     }]
   };
   
@@ -27,7 +27,7 @@ async function testWorkingGemini() {
     if (response.ok && data.candidates) {
       console.log('✅ SUCCESS! Gemini API is working!');
       console.log('🤖 Gemini Response:', data.candidates[0].content.parts[0].text);
-      console.log('\n🎉 Your ChatGPT clone is ready!');
+      console.log('\n🎉 Your CodeGPT is ready!');
       console.log('\n📝 Update your .env file:');
       console.log('GEMINI_MODEL=gemini-2.5-flash');
       console.log('\n🚀 Start your server:');

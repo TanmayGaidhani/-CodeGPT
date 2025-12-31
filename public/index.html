@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ChatGPT Clone (Gemini)</title>
+  <title>CodeGPT</title>
+  <link rel="icon" type="image/png" href="/icon.png">
+  <link rel="shortcut icon" type="image/png" href="/icon.png">
+  <link rel="apple-touch-icon" href="/icon.png">
   <link rel="stylesheet" href="/theme.css" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,18 +21,21 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar__top">
         <div class="sidebar__brand">
-          <div class="sidebar__logo">🤖</div>
+          <div class="sidebar__logo">
+            <img src="/icon.png" alt="CodeGPT" class="logo-img">
+          </div>
           <span class="sidebar__title">CodeGPT</span>
         </div>
       </div>
       
-      <div class="sidebar__prompts">
+      <!-- Chat History Section -->
+      <div class="sidebar__section">
         <div class="sidebar__heading">
-          <span>Recent Prompts</span>
-          <button class="clear-prompts" id="clear-prompts" title="Clear all prompts">🗑️</button>
+          <span>💬 Chat History</span>
+          <button class="new-chat-btn" id="new-chat-btn" title="New Chat">➕</button>
         </div>
-        <div class="prompt-list-container">
-          <ul id="prompt-list"></ul>
+        <div class="chat-history-container">
+          <ul id="chat-history-list"></ul>
         </div>
       </div>
     </aside>
@@ -38,7 +44,9 @@
       <header class="app__header">
         <div class="brand">
           <button class="menu" id="menu">☰</button>
-          <div class="logo">🤖</div>
+          <div class="logo">
+            <img src="/icon.png" alt="CodeGPT" class="logo-img">
+          </div>
           <div class="title">CodeGPT</div>
         </div>
         <div class="header-actions">
@@ -94,6 +102,10 @@
               <button class="tool-btn" data-tool="stocks">
                 <span class="tool-icon">📈</span>
                 <span class="tool-name">Stocks</span>
+              </button>
+              <button class="tool-btn" data-tool="calendar">
+                <span class="tool-icon">📅</span>
+                <span class="tool-name">Calendar</span>
               </button>
               <button class="tool-btn" data-tool="calculator">
                 <span class="tool-icon">🧮</span>
